@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Data Consolidation Bot</title>
+    <style>
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-cream-50: rgba(252, 252, 249, 1);
+            --color-cream-100: rgba(255, 255, 253, 1);
+            --color-gray-200: rgba(245, 245, 245, 1);
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: rgba(19, 52, 59, 1);
+            --color-teal-300: rgba(50, 184, 198, 1);
+            --color-teal-500: rgba(33, 128, 141, 1);
+            --color-teal-600: rgba(29, 116, 128, 1);
+            --color-teal-700: rgba(26, 104, 115, 1);
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-red-500: rgba(192, 21, 47, 1);
+            --color-orange-400: rgba(230, 129, 97, 1);
+            --color-orange-500: rgba(168, 75, 47, 1);
+            
+            --color-brown-600-rgb: 94, 82, 64;
+            --color-teal-500-rgb: 33, 128, 141;
+            --color-slate-900-rgb: 19, 52, 59;
+            --color-red-500-rgb: 192, 21, 47;
+            --color-orange-500-rgb: 168, 75, 47;
+            
+            --color-background: var(--color-cream-50);
+            --color-surface: var(--color-cream-100);
+            --color-text: var(--color-slate-900);
+            --color-text-secondary: var(--color-slate-500);
+            --color-primary: var(--color-teal-500);
+            --color-primary-hover: var(--color-teal-600);
+            --color-primary-active: var(--color-teal-700);
+            --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+            --color-btn-primary-text: var(--color-cream-50);
+            --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+            --color-error: var(--color-red-500);
+            --color-success: var(--color-teal-500);
+            --color-warning: var(--color-orange-500);
+            --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
+            
+            --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-lg: 16px;
+            --font-size-xl: 18px;
+            --font-size-2xl: 20px;
+            --font-size-3xl: 24px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+            --space-32: 32px;
+            --radius-base: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.04);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-gray-300-rgb: 167, 169, 169;
+                --color-gray-400-rgb: 119, 124, 124;
+                --color-teal-300-rgb: 50, 184, 198;
+                --color-background: var(--color-charcoal-700);
+                --color-surface: var(--color-charcoal-800);
+                --color-text: var(--color-gray-200);
+                --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
+                --color-primary: var(--color-teal-300);
+                --color-secondary: rgba(var(--color-gray-400-rgb), 0.15);
+                --color-secondary-hover: rgba(var(--color-gray-400-rgb), 0.25);
+                --color-border: rgba(var(--color-gray-400-rgb), 0.3);
+                --color-error: var(--color-red-400);
+                --color-success: var(--color-teal-300);
+                --color-warning: var(--color-orange-400);
+                --color-card-border: rgba(var(--color-gray-400-rgb), 0.2);
+                --color-btn-primary-text: var(--color-slate-900);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            background: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: var(--space-20);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: var(--space-32);
+        }
+
+        h1 {
+            font-size: var(--font-size-3xl);
+            margin-bottom: var(--space-8);
+            color: var(--color-text);
+        }
+
+        .subtitle {
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-base);
+        }
+
+        .card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-card-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-24);
+            margin-bottom: var(--space-20);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-base);
+            padding: var(--space-32);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: var(--space-20);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--color-primary);
+            background: var(--color-secondary);
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--color-primary);
+            background: var(--color-secondary);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: var(--space-12);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-12) var(--space-24);
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-base);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+        }
+
+        .btn--primary {
+            background: var(--color-primary);
+            color: var(--color-btn-primary-text);
+        }
+
+        .btn--primary:hover:not(:disabled) {
+            background: var(--color-primary-hover);
+        }
+
+        .btn--secondary {
+            background: var(--color-secondary);
+            color: var(--color-text);
+        }
+
+        .btn--secondary:hover:not(:disabled) {
+            background: var(--color-secondary-hover);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: var(--space-12);
+            margin-top: var(--space-20);
+        }
+
+        .files-list {
+            margin: var(--space-20) 0;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-12);
+            background: var(--color-secondary);
+            border-radius: var(--radius-base);
+            margin-bottom: var(--space-8);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-12);
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        .file-size {
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .remove-btn {
+            background: var(--color-error);
+            color: white;
+            border: none;
+            border-radius: var(--radius-base);
+            padding: var(--space-8) var(--space-12);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+        }
+
+        .remove-btn:hover {
+            opacity: 0.8;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-16);
+            margin: var(--space-20) 0;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-8);
+        }
+
+        label {
+            font-weight: 500;
+            font-size: var(--font-size-sm);
+            color: var(--color-text);
+            margin-bottom: var(--space-8);
+        }
+
+        input[type="text"], select {
+            padding: var(--space-8) var(--space-12);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-base);
+            background: var(--color-surface);
+            color: var(--color-text);
+        }
+
+        input[type="checkbox"] {
+            margin-right: var(--space-8);
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+        }
+
+        .progress-section {
+            display: none;
+            margin: var(--space-20) 0;
+        }
+
+        .progress-section.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 24px;
+            background: var(--color-secondary);
+            border-radius: var(--radius-base);
+            overflow: hidden;
+            margin: var(--space-12) 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--color-primary);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+        }
+
+        .log-area {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+            padding: var(--space-16);
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: var(--font-size-sm);
+        }
+
+        .log-entry {
+            padding: var(--space-8);
+            margin-bottom: var(--space-8);
+            border-left: 3px solid var(--color-primary);
+        }
+
+        .log-entry.success {
+            border-left-color: var(--color-success);
+        }
+
+        .log-entry.warning {
+            border-left-color: var(--color-warning);
+        }
+
+        .log-entry.error {
+            border-left-color: var(--color-error);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-16);
+            margin: var(--space-20) 0;
+        }
+
+        .stat-card {
+            background: var(--color-secondary);
+            padding: var(--space-16);
+            border-radius: var(--radius-base);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: var(--font-size-2xl);
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: var(--space-8);
+        }
+
+        .stat-label {
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .results-section {
+            display: none;
+            margin-top: var(--space-32);
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--space-16) 0;
+        }
+
+        th, td {
+            padding: var(--space-12);
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        th {
+            background: var(--color-secondary);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+
+        .table-wrapper {
+            max-height: 400px;
+            overflow: auto;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-base);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Auto Data Consolidation Bot</h1>
+            <p class="subtitle">Merge 20-30 Excel/CSV files with validation, deduplication & standardization</p>
+        </header>
+
+        <div class="card">
+            <h2 style="margin-bottom: var(--space-16);">Upload Files</h2>
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon">📁</div>
+                <p><strong>Click to browse</strong> or drag & drop files here</p>
+                <p class="subtitle">Supports .xlsx, .xls, .csv files (up to 30 files)</p>
+            </div>
+            <input type="file" id="fileInput" multiple accept=".xlsx,.xls,.csv">
+            
+            <div class="files-list" id="filesList"></div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: var(--space-16);">Consolidation Options</h2>
+            
+            <div class="options-grid">
+                <div class="option-group">
+                    <label>Duplicate Column</label>
+                    <select id="duplicateColumn">
+                        <option value="auto">Auto-detect</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label>Header Row</label>
+                    <select id="headerRow">
+                        <option value="1">Row 1</option>
+                        <option value="2">Row 2</option>
+                        <option value="3">Row 3</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label>Output Format</label>
+                    <select id="outputFormat">
+                        <option value="xlsx">Excel (.xlsx)</option>
+                        <option value="csv">CSV (.csv)</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label>Master File Name</label>
+                    <input type="text" id="masterFileName" value="Master_Consolidated" placeholder="Enter file name">
+                </div>
+            </div>
+
+            <div class="option-group" style="margin-top: var(--space-16);">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="removeDuplicates" checked>
+                    Remove duplicate rows
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="standardizeHeaders" checked>
+                    Standardize column headers (trim, lowercase)
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="trimWhitespace" checked>
+                    Trim whitespace from all cells
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="createSummary" checked>
+                    Create summary sheet
+                </label>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn--primary" id="processBtn" disabled>
+                    🔄 Process & Consolidate
+                </button>
+                <button class="btn btn--secondary" id="resetBtn">
+                    ↺ Reset
+                </button>
+            </div>
+        </div>
+
+        <div class="progress-section" id="progressSection">
+            <div class="card">
+                <h2 style="margin-bottom: var(--space-16);">Processing...</h2>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill">0%</div>
+                </div>
+                <div class="log-area" id="logArea"></div>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="card">
+                <h2 style="margin-bottom: var(--space-16);">✅ Consolidation Complete</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="filesProcessed">0</div>
+                        <div class="stat-label">Files Processed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalRows">0</div>
+                        <div class="stat-label">Total Rows</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="duplicatesRemoved">0</div>
+                        <div class="stat-label">Duplicates Removed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="finalRows">0</div>
+                        <div class="stat-label">Final Rows</div>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead id="previewHead"></thead>
+                        <tbody id="previewBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn--primary" id="downloadBtn">
+                        ⬇️ Download Master File
+                    </button>
+                    <button class="btn btn--secondary" id="newProcessBtn">
+                        ➕ New Process
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        let uploadedFiles = [];
+        let consolidatedData = null;
+        let processStats = {};
+
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const filesList = document.getElementById('filesList');
+        const processBtn = document.getElementById('processBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const progressSection = document.getElementById('progressSection');
+        const resultsSection = document.getElementById('resultsSection');
+        const logArea = document.getElementById('logArea');
+        const progressFill = document.getElementById('progressFill');
+        const duplicateColumn = document.getElementById('duplicateColumn');
+
+        // Upload zone interactions
+        uploadZone.addEventListener('click', () => fileInput.click());
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            const fileArray = Array.from(files);
+            const validFiles = fileArray.filter(file => {
+                const ext = file.name.split('.').pop().toLowerCase();
+                return ['xlsx', 'xls', 'csv'].includes(ext);
+            });
+
+            if (validFiles.length + uploadedFiles.length > 30) {
+                alert('Maximum 30 files allowed');
+                return;
+            }
+
+            uploadedFiles = [...uploadedFiles, ...validFiles];
+            displayFiles();
+            processBtn.disabled = uploadedFiles.length === 0;
+        }
+
+        function displayFiles() {
+            filesList.innerHTML = '';
+            uploadedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <span class="file-name">📄 ${file.name}</span>
+                        <span class="file-size">(${(file.size / 1024).toFixed(2)} KB)</span>
+                    </div>
+                    <button class="remove-btn" onclick="removeFile(${index})">Remove</button>
+                `;
+                filesList.appendChild(fileItem);
+            });
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            displayFiles();
+            processBtn.disabled = uploadedFiles.length === 0;
+        }
+
+        resetBtn.addEventListener('click', () => {
+            uploadedFiles = [];
+            consolidatedData = null;
+            filesList.innerHTML = '';
+            processBtn.disabled = true;
+            progressSection.classList.remove('active');
+            resultsSection.classList.remove('active');
+            fileInput.value = '';
+        });
+
+        processBtn.addEventListener('click', async () => {
+            progressSection.classList.add('active');
+            resultsSection.classList.remove('active');
+            logArea.innerHTML = '';
+            
+            await processFiles();
+        });
+
+        function addLog(message, type = 'info') {
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logArea.appendChild(logEntry);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function updateProgress(percent, message) {
+            progressFill.style.width = percent + '%';
+            progressFill.textContent = percent + '%';
+            if (message) addLog(message);
+        }
+
+        async function processFiles() {
+            updateProgress(5, 'Starting consolidation process...');
+            
+            let allData = [];
+            let allHeaders = new Set();
+            const headerRow = parseInt(document.getElementById('headerRow').value) - 1;
+
+            // Read all files
+            for (let i = 0; i < uploadedFiles.length; i++) {
+                const file = uploadedFiles[i];
+                const progress = Math.round(((i + 1) / uploadedFiles.length) * 40) + 5;
+                updateProgress(progress, `Reading file ${i + 1}/${uploadedFiles.length}: ${file.name}`);
+
+                try {
+                    const data = await readFile(file, headerRow);
+                    if (data.length > 0) {
+                        Object.keys(data[0]).forEach(header => allHeaders.add(header));
+                        allData = allData.concat(data);
+                        addLog(`✓ Loaded ${data.length} rows from ${file.name}`, 'success');
+                    }
+                } catch (error) {
+                    addLog(`✗ Error reading ${file.name}: ${error.message}`, 'error');
+                }
+            }
+
+            updateProgress(50, `Loaded ${allData.length} total rows from ${uploadedFiles.length} files`);
+
+            // Standardize headers
+            if (document.getElementById('standardizeHeaders').checked) {
+                updateProgress(55, 'Standardizing column headers...');
+                allData = standardizeHeaders(allData);
+                addLog('✓ Headers standardized', 'success');
+            }
+
+            // Update duplicate column dropdown with actual headers
+            updateDuplicateColumnOptions(allData);
+
+            // Trim whitespace
+            if (document.getElementById('trimWhitespace').checked) {
+                updateProgress(60, 'Trimming whitespace...');
+                allData = trimData(allData);
+                addLog('✓ Whitespace trimmed', 'success');
+            }
+
+            const beforeDedup = allData.length;
+
+            // Remove duplicates
+            if (document.getElementById('removeDuplicates').checked) {
+                updateProgress(70, 'Removing duplicates...');
+                const dupCol = document.getElementById('duplicateColumn').value;
+                allData = removeDuplicates(allData, dupCol === 'auto' ? null : dupCol);
+                const removed = beforeDedup - allData.length;
+                addLog(`✓ Removed ${removed} duplicate rows`, 'success');
+            }
+
+            updateProgress(85, 'Preparing output...');
+
+            // Store results
+            consolidatedData = allData;
+            processStats = {
+                filesProcessed: uploadedFiles.length,
+                totalRows: beforeDedup,
+                duplicatesRemoved: beforeDedup - allData.length,
+                finalRows: allData.length
+            };
+
+            updateProgress(100, 'Consolidation complete!');
+            
+            setTimeout(() => {
+                showResults();
+            }, 500);
+        }
+
+        function readFile(file, headerRow) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    try {
+                        const data = e.target.result;
+                        const workbook = XLSX.read(data, { type: 'binary' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: headerRow });
+                        resolve(jsonData);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                
+                reader.onerror = () => reject(new Error('File reading failed'));
+                reader.readAsBinaryString(file);
+            });
+        }
+
+        function standardizeHeaders(data) {
+            return data.map(row => {
+                const newRow = {};
+                Object.keys(row).forEach(key => {
+                    const standardKey = key.trim().toLowerCase().replace(/\s+/g, '_');
+                    newRow[standardKey] = row[key];
+                });
+                return newRow;
+            });
+        }
+
+        function trimData(data) {
+            return data.map(row => {
+                const newRow = {};
+                Object.keys(row).forEach(key => {
+                    newRow[key] = typeof row[key] === 'string' ? row[key].trim() : row[key];
+                });
+                return newRow;
+            });
+        }
+
+        function removeDuplicates(data, column) {
+            const seen = new Set();
+            return data.filter(row => {
+                const key = column ? row[column] : JSON.stringify(row);
+                if (seen.has(key)) {
+                    return false;
+                }
+                seen.add(key);
+                return true;
+            });
+        }
+
+        function updateDuplicateColumnOptions(data) {
+            if (data.length === 0) return;
+            
+            const headers = Object.keys(data[0]);
+            duplicateColumn.innerHTML = '<option value="auto">Entire row</option>';
+            
+            headers.forEach(header => {
+                const option = document.createElement('option');
+                option.value = header;
+                option.textContent = header;
+                duplicateColumn.appendChild(option);
+            });
+        }
+
+        function showResults() {
+            resultsSection.classList.add('active');
+            progressSection.classList.remove('active');
+
+            // Update stats
+            document.getElementById('filesProcessed').textContent = processStats.filesProcessed;
+            document.getElementById('totalRows').textContent = processStats.totalRows;
+            document.getElementById('duplicatesRemoved').textContent = processStats.duplicatesRemoved;
+            document.getElementById('finalRows').textContent = processStats.finalRows;
+
+            // Preview table (first 50 rows)
+            const previewData = consolidatedData.slice(0, 50);
+            const headers = Object.keys(consolidatedData[0] || {});
+
+            const thead = document.getElementById('previewHead');
+            thead.innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+
+            const tbody = document.getElementById('previewBody');
+            tbody.innerHTML = previewData.map(row => 
+                '<tr>' + headers.map(h => `<td>${row[h] || ''}</td>`).join('') + '</tr>'
+            ).join('');
+        }
+
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const format = document.getElementById('outputFormat').value;
+            const fileName = document.getElementById('masterFileName').value || 'Master_Consolidated';
+
+            const ws = XLSX.utils.json_to_sheet(consolidatedData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Consolidated Data');
+
+            // Add summary sheet if requested
+            if (document.getElementById('createSummary').checked) {
+                const summaryData = [
+                    { Metric: 'Files Processed', Value: processStats.filesProcessed },
+                    { Metric: 'Total Rows (before dedup)', Value: processStats.totalRows },
+                    { Metric: 'Duplicates Removed', Value: processStats.duplicatesRemoved },
+                    { Metric: 'Final Rows', Value: processStats.finalRows },
+                    { Metric: 'Unique Columns', Value: Object.keys(consolidatedData[0] || {}).length },
+                    { Metric: 'Processing Date', Value: new Date().toLocaleString() }
+                ];
+                const summaryWs = XLSX.utils.json_to_sheet(summaryData);
+                XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary');
+            }
+
+            XLSX.writeFile(wb, `${fileName}.${format}`);
+            addLog(`✓ Downloaded ${fileName}.${format}`, 'success');
+        });
+
+        document.getElementById('newProcessBtn').addEventListener('click', () => {
+            uploadedFiles = [];
+            consolidatedData = null;
+            filesList.innerHTML = '';
+            processBtn.disabled = true;
+            resultsSection.classList.remove('active');
+            fileInput.value = '';
+        });
+    </script>
+</body>
+</html>
